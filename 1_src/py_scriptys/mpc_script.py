@@ -12,10 +12,13 @@ class Agent:
     def __init__(self, agent_id, i_state, g_state, vg, wg, p_horizon, u_horizon):
         # agent state
         self.agent_id = agent_id # id of the agent
-        self.agent_radius = 2
+        self.radius = 1.90/2
         self.i_state = np.array(i_state) # start state
         self.g_state = np.array(g_state) # goal state
-        self.c_state = i_state # current state
+        self.c_state1 = i_state # current state for body-1
+        self.c_state2 = self.calc_body2() # current state for body-2
+        self.c_state3 = self.calc_body3() # current state for body-3
+        
         # horizons
         self.p_horizon = p_horizon # planning horizon
         self.u_horizon = u_horizon # update horizon
@@ -38,7 +41,25 @@ class Agent:
         self.time_list = [] 
         self.avg_time = 0
         self.max_time = 0
-        
+    
+    def calc_body2(self):
+        x2, y2 = self.calc_pos(2*self.radius, 0, self.c_state1[2])
+        x2 = x2 + self.c_state1[0]  
+        y2 = y2 + self.c_state1[1]
+        return np.array([x2, y2, self.c_state1[2]])
+    
+    def calc_body3(self):
+        x3, y3 = self.calc_pos(4*self.radius, 0, self.c_state1[2])
+        x3 = x3 + self.c_state1[0]  
+        y3 = y3 + self.c_state1[1]
+        return np.array([x3, y3, self.c_state1[2]])
+           
+    def calc_pos(self, x, y, theta):
+        R = np.matrix([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
+        pos = np.array([[x],[y]])
+        new_pos = R@pos 
+        return new_pos[0,0], new_pos[1,0]
+
     def get_P_q_x(self):
         
         P_x_ = np.ones((1,2*self.p_horizon))
@@ -50,7 +71,7 @@ class Agent:
             d_th[0,i] = s
         
         th_ = np.ones((1,self.p_horizon)) # th0+wg1*dt, th0+(wg1+wg2)*dt, th0+(wg1+wg2+wg3)*dt
-        th_0 = self.c_state[2]   
+        th_0 = self.c_state1[2]   
         for i in range(self.p_horizon):
             th_[0,i] = th_0 + d_th[0,i]*self.dt
         
@@ -73,7 +94,7 @@ class Agent:
         
         ### Solving for q_x
         q_x = np.ones((2*self.p_horizon))
-        x_0 = self.c_state[0]
+        x_0 = self.c_state1[0]
         v_sum = 0
         w_sum = 0
         for i in range(self.p_horizon):
@@ -96,7 +117,7 @@ class Agent:
             d_th[0,i] = s
         
         th_ = np.ones((1,self.p_horizon)) # th0+wg1*dt, th0+(wg1+wg2)*dt, th0+(wg1+wg2+wg3)*dt
-        th_0 = self.c_state[2]   
+        th_0 = self.c_state1[2]   
         for i in range(self.p_horizon):
             th_[0,i] = th_0 + d_th[0,i]*self.dt
         
@@ -120,7 +141,7 @@ class Agent:
         
         ### Solving for q_y
         q_y = np.ones((2*self.p_horizon))
-        y_0 = self.c_state[1]
+        y_0 = self.c_state1[1]
         w_sum = 0
         for i in range(self.p_horizon):
             w_sum = w_sum + self.wg[i]*s_dw[0,i]
@@ -136,7 +157,7 @@ class Agent:
         P_theta[self.p_horizon:,self.p_horizon:]=self.dt**2*np.ones((self.p_horizon,self.p_horizon))
         
         q_theta = np.zeros((2*self.p_horizon))
-        theta_0 = self.c_state[2]
+        theta_0 = self.c_state1[2]
         theta_g = self.g_state[2]
         q_theta[self.p_horizon:]=2*(theta_0 - theta_g)*self.dt * np.ones((self.p_horizon))
     
@@ -183,17 +204,9 @@ class Agent:
             P_x, q_x = self.get_P_q_x()
             P_y, q_y = self.get_P_q_y()
             P_theta, q_theta = self.get_P_q_theta()
-            # P_diff, q_diff = self.get_diff_vel_mat()
-            # P_cont, q_cont = self.get_continuity_mat()
             
             P_cost_1 = w1 * ( P_x + P_y + P_theta ) # P matrix for goal reaching cost
             q_cost_1 = w1 * ( q_x + q_y + q_theta ) # q vector for goal reaching cost
-            
-#             P_cost_2 = w2 *  P_diff  # P matrix for smoothness cost
-#             q_cost_2 = w2 *  q_diff  # q vector for smoothness cost
-            
-#             P_cost_3 = w3 * ( P_cont ) # P matrix for continuity cost
-#             q_cost_3 = w3 * ( q_cont ) # q vector for continuity cost
             
             P = 2*matrix( P_cost_1 , tc='d')
             q = matrix( q_cost_1 , tc='d')
@@ -246,28 +259,20 @@ class Agent:
             w_cost = np.linalg.norm(self.wg - sol['x'][self.p_horizon:])
             self.vg = sol['x'][0:self.p_horizon]
             self.wg = sol['x'][self.p_horizon:]
-#             cost = cost = np.linalg.norm(prev_sol - np.array(sol['x']))
-#             prev_sol = np.concatenate((a.vg,a.wg),axis=0)
-#             print(cost)
-#             s_prev = sol['primal objective']
             
         end_time = time.time()
         self.time_list.append(end_time-strt_time)
         return sol
        
     def non_hol_update(self):
-        self.c_state[2] = self.c_state[2] + self.w*self.dt
-        self.c_state[0] = self.c_state[0] + self.v*np.cos(self.c_state[2])*self.dt
-        self.c_state[1] = self.c_state[1] + self.v*np.sin(self.c_state[2])*self.dt
-        
-    def draw_circle(self):
-        th = np.arange(0,2*np.pi,0.01)
-        xunit = self.agent_radius * np.cos(th) + self.c_state[0]
-        yunit = self.agent_radius * np.sin(th) + self.c_state[1]
-        return xunit, yunit  
+        self.c_state1[2] = self.c_state1[2] + self.w*self.dt
+        self.c_state1[0] = self.c_state1[0] + self.v*np.cos(self.c_state1[2])*self.dt
+        self.c_state1[1] = self.c_state1[1] + self.v*np.sin(self.c_state1[2])*self.dt 
+        self.c_state2 = self.calc_body2()
+        self.c_state3 = self.calc_body3()
     
     def get_traj(self,k):
-        state = copy.deepcopy(self.c_state)
+        state = copy.deepcopy(self.c_state1)
         for i in range(k,self.p_horizon):
             state[2] = state[2] + self.wg[i]*self.dt
             state[0] = state[0] + self.vg[i]*np.cos(state[2])*self.dt
@@ -275,6 +280,11 @@ class Agent:
             self.x_traj.append(state[0])
             self.y_traj.append(state[1])
                 
+def draw_circle(x,y,r):
+    th = np.arange(0,2*np.pi,0.01)
+    xunit = r * np.cos(th) + x
+    yunit = r * np.sin(th) + y
+    return xunit, yunit 
 
 def main():
     p_horizon = 50
@@ -282,10 +292,8 @@ def main():
     ### initialize vg and wg
     vg = 20*np.ones((p_horizon,1))
     wg = 0.1*np.ones((p_horizon,1))
-    # vg = np.random.random((p_horizon,1))
-    # wg = np.random.random((p_horizon,1))
 
-    a = Agent(1, [0,0,np.deg2rad(45)],[80,50,np.deg2rad(45)], vg, wg, p_horizon, u_horizon)
+    a = Agent(1, [0,0,np.deg2rad(45)],[50,50,np.deg2rad(45)], vg, wg, p_horizon, u_horizon)
     th = 0.5
     timeout = 200
     rec_video = False
@@ -293,7 +301,7 @@ def main():
         plt_sv_dir = "../2_pipeline/tmp/"
         p = 0
     fig = plt.figure()    
-    while( (np.linalg.norm(a.c_state-a.g_state)>th) and timeout>0):
+    while( (np.linalg.norm(a.c_state1-a.g_state)>th) and timeout>0):
         a.pred_controls()
         for i in range(u_horizon):
             a.v = a.vg[i]
@@ -303,22 +311,27 @@ def main():
             a.y_traj = []
             a.get_traj(i)
             a.non_hol_update()
-            # if(not rec_video):
-            #     clear_output(wait=True)
-            x,y = a.draw_circle()
-            plt.plot(x,y,'b')
+            # agent_pos = viz_agent(a.c_state1[0], a.c_state1[1], a.c_state1[2]) # coordinates of the three circles
+            cx1, cy1 = draw_circle(a.c_state1[0], a.c_state1[1], a.radius)
+            cx2, cy2 = draw_circle(a.c_state2[0], a.c_state2[1], a.radius)
+            cx3, cy3 = draw_circle(a.c_state3[0], a.c_state3[1], a.radius)
+
+            plt.plot(cx1,cy1,'b')
+            plt.plot(cx2,cy2,'b')
+            plt.plot(cx3,cy3,'b')
+
             plt.scatter(a.g_state[0],a.g_state[1],marker='x', color='r')
             plt.scatter(a.x_traj, a.y_traj,marker='.', color='r', s=1)
-            plt.plot([a.c_state[0],a.g_state[0]],[a.c_state[1],a.g_state[1]], linestyle='dotted', c='k')
-            
-            plt.show()
-            plt.xlim([-10,100])
-            plt.ylim([-10,100])
-            fig.canvas.draw()
-            fig.canvas.flush_events()
+            plt.plot([a.c_state1[0],a.g_state[0]],[a.c_state1[1],a.g_state[1]], linestyle='dotted', c='k')
+            # plt.axis('equal')
+            plt.xlim([-10,60])
+            plt.ylim([-10,60])
             if(rec_video):
                 plt.savefig(plt_sv_dir+str(p)+".png",dpi=100)
                 p = p+1
+                plt.clf()
+            else:
+                plt.pause(1e-10)
                 plt.clf()
             
             timeout = timeout - a.dt

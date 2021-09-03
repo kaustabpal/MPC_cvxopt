@@ -351,8 +351,8 @@ def get_dist(a_state, o_state):
     return d       
     
 def main():
-    p_horizon = 50
-    u_horizon = 10
+    p_horizon = 30
+    u_horizon = 5
 
     ### initialize vg and wg
     vg = 0*np.ones((p_horizon,1))
@@ -360,14 +360,14 @@ def main():
     # vg = np.random.random((p_horizon,1))
     # wg = np.random.random((p_horizon,1))
 
-    agent1 = Agent(1,[-60,-30,0.78],[80,30,0.78], vg, wg, p_horizon, u_horizon);
-    agent2 = Agent(2,[-60,40,-0.78],[60,-80,-0.78], vg, wg, p_horizon, u_horizon);
-    agent3 = Agent(3, [-80,0,0], [80,0,0], vg, wg, p_horizon, u_horizon);
-    agent4 = Agent(4,[0,-80,1.5],[0,80,1.5], vg, wg, p_horizon, u_horizon);
-    agent5 = Agent(5,[-30,-60,0.7],[80,70,0.7], vg, wg, p_horizon, u_horizon);
-    agent6 = Agent(6,[40,-70,2.3],[-40,80,2.3], vg, wg, p_horizon, u_horizon);
-    agent7 = Agent(7,[50,-60,1.5],[50,70,1.5], vg, wg, p_horizon, u_horizon);
-    agent8 = Agent(8,[-30,60,-1.5],[-30,-60,-1.5], vg, wg, p_horizon, u_horizon);
+    agent1 = Agent(1,[-60,-30,0.78],[80,30,0.78], vg, wg, p_horizon, u_horizon)
+    agent2 = Agent(2,[-60,40,-0.78],[60,-80,-0.78], vg, wg, p_horizon, u_horizon)
+    agent3 = Agent(3, [-80,0,0], [80,0,0], vg, wg, p_horizon, u_horizon)
+    agent4 = Agent(4,[0,-80,1.5],[0,80,1.5], vg, wg, p_horizon, u_horizon)
+    agent5 = Agent(5,[-30,-60,0.7],[80,70,0.7], vg, wg, p_horizon, u_horizon)
+    agent6 = Agent(6,[40,-70,2.3],[-40,80,2.3], vg, wg, p_horizon, u_horizon)
+    agent7 = Agent(7,[50,-60,1.5],[50,70,1.5], vg, wg, p_horizon, u_horizon)
+    agent8 = Agent(8,[-30,60,-1.5],[-30,-60,-1.5], vg, wg, p_horizon, u_horizon)
 
     agent1.obstacles = [agent2, agent3, agent4, agent5, agent6, agent7, agent8]
     # agent2.obstacles = [agent1, agent3, agent4]
@@ -397,9 +397,11 @@ def main():
 
     rec_video = False
     if(rec_video):
-        plt_sv_dir = "../2_pipeline/tmp/"
+        plt_sv_dir = "../../2_pipeline/tmp/"
         p = 0
 
+    plt.ion()
+    plt.show()
     while( ( (np.linalg.norm(agent1.c_state-agent1.g_state)>th) or \
             (np.linalg.norm(agent2.c_state-agent2.g_state)>th) or \
             (np.linalg.norm(agent3.c_state-agent3.g_state)>th) or \
@@ -495,75 +497,75 @@ def main():
             if(not rec_video):
                 clear_output(wait=True)
                 
-            # xa,ya = agent1.draw_circle(agent1.c_state[0], agent1.c_state[1])
-            # xb,yb = agent2.draw_circle(agent2.c_state[0], agent2.c_state[1])
-            # xc,yc = agent3.draw_circle(agent3.c_state[0], agent3.c_state[1])
-            # xd,yd = agent4.draw_circle(agent4.c_state[0], agent4.c_state[1])
-            # xe,ye = agent5.draw_circle(agent5.c_state[0], agent5.c_state[1])
-            # xf,yf = agent6.draw_circle(agent6.c_state[0], agent6.c_state[1])
-            # xg,yg = agent7.draw_circle(agent7.c_state[0], agent7.c_state[1])
-            # xh,yh = agent8.draw_circle(agent8.c_state[0], agent8.c_state[1])
+            xa,ya = agent1.draw_circle(agent1.c_state[0], agent1.c_state[1])
+            xb,yb = agent2.draw_circle(agent2.c_state[0], agent2.c_state[1])
+            xc,yc = agent3.draw_circle(agent3.c_state[0], agent3.c_state[1])
+            xd,yd = agent4.draw_circle(agent4.c_state[0], agent4.c_state[1])
+            xe,ye = agent5.draw_circle(agent5.c_state[0], agent5.c_state[1])
+            xf,yf = agent6.draw_circle(agent6.c_state[0], agent6.c_state[1])
+            xg,yg = agent7.draw_circle(agent7.c_state[0], agent7.c_state[1])
+            xh,yh = agent8.draw_circle(agent8.c_state[0], agent8.c_state[1])
 
-            # plt.plot(xa,ya,'red',linewidth=1)
-            # plt.annotate('1', xy=(agent1.c_state[0], agent1.c_state[1]+2.5))
-            # plt.plot(xb,yb,'b',linewidth=1)
-            # plt.annotate('2', xy=(agent2.c_state[0], agent2.c_state[1]+2.5))
-            # plt.plot(xc,yc,'b',linewidth=1)
-            # plt.annotate('3', xy=(agent3.c_state[0], agent3.c_state[1]+2.5))
-            # plt.plot(xd,yd,'b',linewidth=1)
-            # plt.annotate('4', xy=(agent4.c_state[0], agent4.c_state[1]+2.5))
-            # plt.plot(xe,ye,'b',linewidth=1)
-            # plt.annotate('5', xy=(agent5.c_state[0], agent5.c_state[1]+2.5))
-            # plt.plot(xf,yf,'b',linewidth=1)
-            # plt.annotate('6', xy=(agent6.c_state[0], agent6.c_state[1]+2.5))
-            # plt.plot(xg,yg,'b',linewidth=1)
-            # plt.annotate('7', xy=(agent7.c_state[0], agent7.c_state[1]+2.5))
-            # plt.plot(xh,yh,'b',linewidth=1)
-            # plt.annotate('8', xy=(agent8.c_state[0], agent8.c_state[1]+2.5))
+            plt.plot(xa,ya,'red',linewidth=1)
+            plt.annotate('1', xy=(agent1.c_state[0], agent1.c_state[1]+2.5))
+            plt.plot(xb,yb,'b',linewidth=1)
+            plt.annotate('2', xy=(agent2.c_state[0], agent2.c_state[1]+2.5))
+            plt.plot(xc,yc,'b',linewidth=1)
+            plt.annotate('3', xy=(agent3.c_state[0], agent3.c_state[1]+2.5))
+            plt.plot(xd,yd,'b',linewidth=1)
+            plt.annotate('4', xy=(agent4.c_state[0], agent4.c_state[1]+2.5))
+            plt.plot(xe,ye,'b',linewidth=1)
+            plt.annotate('5', xy=(agent5.c_state[0], agent5.c_state[1]+2.5))
+            plt.plot(xf,yf,'b',linewidth=1)
+            plt.annotate('6', xy=(agent6.c_state[0], agent6.c_state[1]+2.5))
+            plt.plot(xg,yg,'b',linewidth=1)
+            plt.annotate('7', xy=(agent7.c_state[0], agent7.c_state[1]+2.5))
+            plt.plot(xh,yh,'b',linewidth=1)
+            plt.annotate('8', xy=(agent8.c_state[0], agent8.c_state[1]+2.5))
                 
-            # plt.scatter(agent1.g_state[0],agent1.g_state[1],marker='x', color='r')
-            # plt.scatter(agent1.x_traj, agent1.y_traj,marker='.', color='cyan', s=1)
-            # plt.plot([agent1.c_state[0],agent1.g_state[0]],[agent1.c_state[1],agent1.g_state[1]], linestyle='dotted', c='k')
+            plt.scatter(agent1.g_state[0],agent1.g_state[1],marker='x', color='r')
+            plt.scatter(agent1.x_traj, agent1.y_traj,marker='.', color='cyan', s=1)
+            plt.plot([agent1.c_state[0],agent1.g_state[0]],[agent1.c_state[1],agent1.g_state[1]], linestyle='dotted', c='k')
             
-            # plt.scatter(agent2.g_state[0],agent2.g_state[1],marker='x', color='r')
-            # plt.scatter(agent2.x_traj, agent2.y_traj,marker='.', color='cyan', s=1)
-            # plt.plot([agent2.c_state[0],agent2.g_state[0]],[agent2.c_state[1],agent2.g_state[1]], linestyle='dotted', c='k')
+            plt.scatter(agent2.g_state[0],agent2.g_state[1],marker='x', color='r')
+            plt.scatter(agent2.x_traj, agent2.y_traj,marker='.', color='cyan', s=1)
+            plt.plot([agent2.c_state[0],agent2.g_state[0]],[agent2.c_state[1],agent2.g_state[1]], linestyle='dotted', c='k')
             
-            # plt.scatter(agent3.g_state[0],agent3.g_state[1],marker='x', color='r')
-            # plt.scatter(agent3.x_traj, agent3.y_traj,marker='.', color='cyan', s=1)
-            # plt.plot([agent3.c_state[0],agent3.g_state[0]],[agent3.c_state[1],agent3.g_state[1]], linestyle='dotted', c='k')
+            plt.scatter(agent3.g_state[0],agent3.g_state[1],marker='x', color='r')
+            plt.scatter(agent3.x_traj, agent3.y_traj,marker='.', color='cyan', s=1)
+            plt.plot([agent3.c_state[0],agent3.g_state[0]],[agent3.c_state[1],agent3.g_state[1]], linestyle='dotted', c='k')
             
-            # plt.scatter(agent4.g_state[0],agent4.g_state[1],marker='x', color='r')
-            # plt.scatter(agent4.x_traj, agent4.y_traj,marker='.', color='cyan', s=1)
-            # plt.plot([agent4.c_state[0],agent4.g_state[0]],[agent4.c_state[1],agent4.g_state[1]], linestyle='dotted', c='k')
+            plt.scatter(agent4.g_state[0],agent4.g_state[1],marker='x', color='r')
+            plt.scatter(agent4.x_traj, agent4.y_traj,marker='.', color='cyan', s=1)
+            plt.plot([agent4.c_state[0],agent4.g_state[0]],[agent4.c_state[1],agent4.g_state[1]], linestyle='dotted', c='k')
             
-            # plt.scatter(agent5.g_state[0],agent5.g_state[1],marker='x', color='r')
-            # plt.scatter(agent5.x_traj, agent5.y_traj,marker='.', color='cyan', s=1)
-            # plt.plot([agent5.c_state[0],agent5.g_state[0]],[agent5.c_state[1],agent5.g_state[1]], linestyle='dotted', c='k')
+            plt.scatter(agent5.g_state[0],agent5.g_state[1],marker='x', color='r')
+            plt.scatter(agent5.x_traj, agent5.y_traj,marker='.', color='cyan', s=1)
+            plt.plot([agent5.c_state[0],agent5.g_state[0]],[agent5.c_state[1],agent5.g_state[1]], linestyle='dotted', c='k')
             
-            # plt.scatter(agent6.g_state[0],agent6.g_state[1],marker='x', color='r')
-            # plt.scatter(agent6.x_traj, agent6.y_traj,marker='.', color='cyan', s=1)
-            # plt.plot([agent6.c_state[0],agent6.g_state[0]],[agent6.c_state[1],agent6.g_state[1]], linestyle='dotted', c='k')
+            plt.scatter(agent6.g_state[0],agent6.g_state[1],marker='x', color='r')
+            plt.scatter(agent6.x_traj, agent6.y_traj,marker='.', color='cyan', s=1)
+            plt.plot([agent6.c_state[0],agent6.g_state[0]],[agent6.c_state[1],agent6.g_state[1]], linestyle='dotted', c='k')
             
-            # plt.scatter(agent7.g_state[0],agent7.g_state[1],marker='x', color='r')
-            # plt.scatter(agent7.x_traj, agent7.y_traj,marker='.', color='cyan', s=1)
-            # plt.plot([agent7.c_state[0],agent7.g_state[0]],[agent7.c_state[1],agent7.g_state[1]], linestyle='dotted', c='k')
+            plt.scatter(agent7.g_state[0],agent7.g_state[1],marker='x', color='r')
+            plt.scatter(agent7.x_traj, agent7.y_traj,marker='.', color='cyan', s=1)
+            plt.plot([agent7.c_state[0],agent7.g_state[0]],[agent7.c_state[1],agent7.g_state[1]], linestyle='dotted', c='k')
             
-            # plt.scatter(agent8.g_state[0],agent8.g_state[1],marker='x', color='r')
-            # plt.scatter(agent8.x_traj, agent8.y_traj,marker='.', color='cyan', s=1)
-            # plt.plot([agent8.c_state[0],agent8.g_state[0]],[agent8.c_state[1],agent8.g_state[1]], linestyle='dotted', c='k')
+            plt.scatter(agent8.g_state[0],agent8.g_state[1],marker='x', color='r')
+            plt.scatter(agent8.x_traj, agent8.y_traj,marker='.', color='cyan', s=1)
+            plt.plot([agent8.c_state[0],agent8.g_state[0]],[agent8.c_state[1],agent8.g_state[1]], linestyle='dotted', c='k')
             
-            # plt.xlim([-100,100])
-            # plt.ylim([-100,100])
-            # plt.title("Agent 1 has Obstacle avoidance")  
+            plt.xlim([-100,100])
+            plt.ylim([-100,100])
+            plt.title("Agent 1 has Obstacle avoidance")  
             
             if(rec_video):
                 plt.savefig(plt_sv_dir+str(p)+".png",dpi=500, bbox_inches='tight')
                 p = p+1
                 plt.clf()
             else:
-                pass
-                # plt.show()
+                plt.pause(1e-10)
+                plt.clf()
             timeout = timeout - agent1.dt
             
         agent1.vl = agent1.v
